@@ -1,5 +1,6 @@
 use std::num::ParseIntError;
 
+use sdl2::{video::WindowBuildError, IntegerOrSdlError};
 use thiserror::Error;
 
 
@@ -25,5 +26,14 @@ pub enum ProgramError {
 
     #[error("cannot read or generate image data")]
     SkiaNoImage,
+
+    #[error("SDL2 pooped itself: {0}")]
+    SDLError(String),
+
+    #[error(transparent)]
+    SDLIntegerOrError(#[from] IntegerOrSdlError),
+
+    #[error(transparent)]
+    SDLWindowBuildError(#[from] WindowBuildError),
 }
 
