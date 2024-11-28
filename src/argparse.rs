@@ -29,9 +29,10 @@ impl Args {
         }
 
         let mut result = Self::default();
+        let args = args().skip(1);
 
         let mut flag_to_set = FlagSet::Nop;
-        for arg in args() {
+        for arg in args {
             match (arg.as_str(), &flag_to_set) {
                 ("--preview" | "-p", FlagSet::Nop) => {
                     result.preview = true

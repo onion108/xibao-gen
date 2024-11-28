@@ -7,7 +7,7 @@ use crate::error::ProgramError;
 /// - `$PWD/resource/`
 /// - `$PWD/share/`
 /// - `@executable_path/../`
-/// - `@executable_path/../../share/`
+/// - `@executable_path/../../share/<executable_name>`
 pub fn get_res_path(path: &str) -> Result<String, ProgramError> {
     // Special case for absolute path.
     if path.starts_with("/") {
@@ -29,13 +29,14 @@ pub fn get_res_path(path: &str) -> Result<String, ProgramError> {
     }
 
     if let Ok(mut path_buf) = current_exe() {
+        let exe_name = path_buf.file_name().unwrap().to_str().ok_or(ProgramError::EncodingError)?.to_string();
         path_buf.pop();
         let possible_path2 = path_buf.join(path);
         if exists(&possible_path2)? {
             return Ok(possible_path2.to_str().ok_or(ProgramError::EncodingError)?.into())
         }
 
-        let possible_path3 = path_buf.join("../share").join(path);
+        let possible_path3 = path_buf.join("../share").join(&exe_name).join(path);
         if exists(&possible_path3)? {
             return Ok(possible_path3.to_str().ok_or(ProgramError::EncodingError)?.into())
         }
