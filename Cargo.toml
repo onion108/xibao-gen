@@ -1,0 +1,8 @@
+[package]
+name = "xibao-gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+skia-safe = { version = "0.80.1", features = ["textlayout"] }
+thiserror = "2.0.3"
