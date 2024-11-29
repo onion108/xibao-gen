@@ -1,4 +1,4 @@
-use std::env::args;
+use std::{env::args, process::exit};
 
 use crate::error::ProgramError;
 
@@ -20,6 +20,31 @@ impl Default for Args {
 }
 
 impl Args {
+    pub fn show_help(exe_name: &str) {
+        const HELP_MESSAGE: &'static str = r#"
+        Usage:
+        %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--help] <text>
+        
+        Arguments:
+            --preview  Show a window to preview the image instead of writing to file.
+        -t, --text     The text to display in the generated image.
+        -s, --size     The font size, defaults to 48.
+            --help     Display this message.
+            <text>     Same as using -t or --text.
+
+        If duplicate arguments are read, then the latest one will be applied, others will be ignored.
+        "#;
+
+        eprintln!("{}", 
+            HELP_MESSAGE
+                .trim_end()
+                .replace("%$<PROG_NAME>$%", exe_name)
+                .split("\n")
+                .map(|line| line.replacen("        ", "", 1))
+                .fold(String::new(), |a, b| a + &b + "\n")
+        );
+    }
+    
     pub fn parse() -> Result<Args, ProgramError> {
 
         enum FlagSet {
@@ -29,10 +54,13 @@ impl Args {
         }
 
         let mut result = Self::default();
-        let args = args().skip(1);
+        let mut args = args();
+        let exe_name = args.next().unwrap();
 
         let mut flag_to_set = FlagSet::Nop;
+        let mut empty = true;
         for arg in args {
+            empty = false;
             match (arg.as_str(), &flag_to_set) {
                 ("--preview" | "-p", FlagSet::Nop) => {
                     result.preview = true
@@ -43,6 +71,10 @@ impl Args {
                 ("--size" | "-s", FlagSet::Nop) => {
                     flag_to_set = FlagSet::SetSize
                 }
+                ("--help", FlagSet::Nop) => {
+                    Self::show_help(&exe_name);
+                    exit(0);
+                }
                 (s, FlagSet::Nop | FlagSet::SetText) => {
                     result.text = s.into();
                     flag_to_set = FlagSet::Nop;
@@ -52,6 +84,11 @@ impl Args {
                     flag_to_set = FlagSet::Nop;
                 }
             }
+        }
+
+        if empty {
+            Self::show_help(&exe_name);
+            exit(1);
         }
 
         Ok(result)

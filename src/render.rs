@@ -2,8 +2,6 @@ use skia_safe::{surfaces, Color, Color4f, Data, Font, FontMgr, FontStyle, Image,
 
 use crate::{argparse::Args, error::ProgramError, resource::get_res_path};
 
-
-
 pub fn create_surface(width: i32, height: i32) -> Result<Surface, ProgramError> {
     surfaces::raster(
         &ImageInfo::new((width, height), skia_safe::ColorType::RGBA8888, skia_safe::AlphaType::Opaque, None),
@@ -18,6 +16,11 @@ pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, Progr
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
     paint.set_color(Color::BLACK);
+
+    let mut debug_painter = Paint::default();
+    debug_painter.set_color(Color::TRANSPARENT);
+    debug_painter.set_style(skia_safe::PaintStyle::Stroke);
+    debug_painter.set_stroke_width(4.0);
 
     let font_mgr = FontMgr::new();
     let default_typeface = font_mgr
@@ -37,11 +40,16 @@ pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, Progr
     shaper.shape_text_blob(&args.text, font, true, 10000.0, Point::default())
     {
         let bounds = blob.bounds();
+        println!("{:?}", bounds);
         let text_width = bounds.right - bounds.left;
         let text_height = bounds.bottom - bounds.top;
-        let text_x = (width as f32 - text_width) / 2.0;
-        let text_y = (height as f32 - text_height) / 2.0;
+        let text_x = (width as f32 - text_width) / 2.0 - bounds.left;
+        let text_y = (height as f32 - text_height) / 2.0 - bounds.top;
         canvas.draw_text_blob(&blob, (text_x, text_y), &paint);
+        
+        let boundary = bounds.clone().with_offset((text_x, text_y));
+        canvas.draw_rect(boundary, &debug_painter);
+        canvas.draw_point((text_x, text_y), &debug_painter);
     }
 
     Ok(surface.image_snapshot())
