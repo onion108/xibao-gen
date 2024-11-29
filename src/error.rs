@@ -3,7 +3,6 @@ use std::num::ParseIntError;
 use sdl2::{video::WindowBuildError, IntegerOrSdlError};
 use thiserror::Error;
 
-
 #[derive(Error, Debug)]
 pub enum ProgramError {
     #[error(transparent)]
@@ -42,4 +41,3 @@ pub enum ProgramError {
     #[error(transparent)]
     SDLWindowBuildError(#[from] WindowBuildError),
 }
-

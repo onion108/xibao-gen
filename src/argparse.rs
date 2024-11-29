@@ -7,7 +7,7 @@ pub struct Args {
     pub preview: bool,
     pub text: String,
     pub size: i32,
-    pub out: String
+    pub out: String,
 }
 
 impl Default for Args {
@@ -16,7 +16,7 @@ impl Default for Args {
             preview: false,
             text: "".into(),
             size: 48,
-            out: "output.png".into()
+            out: "output.png".into(),
         }
     }
 }
@@ -39,7 +39,8 @@ impl Args {
         If duplicate arguments are read, then the latest one will be applied, others will be ignored.
         "#;
 
-        eprintln!("{}", 
+        eprintln!(
+            "{}",
             HELP_MESSAGE
                 .trim_end()
                 .replace("%$<PROG_NAME>$%", exe_name)
@@ -48,15 +49,14 @@ impl Args {
                 .fold(String::new(), |a, b| a + &b + "\n")
         );
     }
-    
-    pub fn parse() -> Result<Args, ProgramError> {
 
+    pub fn parse() -> Result<Args, ProgramError> {
         enum FlagSet {
             SetText,
             SetSize,
             SetInput,
             SetOutput,
-            Nop
+            Nop,
         }
 
         let mut result = Self::default();
@@ -71,7 +71,7 @@ impl Args {
             match (arg.as_str(), &flag_to_set) {
                 ("--preview" | "-p", FlagSet::Nop) => {
                     result.preview = true;
-                },
+                }
                 ("--text" | "-t", FlagSet::Nop) => {
                     flag_to_set = FlagSet::SetText;
                 }
@@ -131,11 +131,14 @@ impl Args {
 
             // If the flag_to_set isn't `FlagSet::Nop`, meaning some argument are not given for a
             // flag.
-            FlagSet::SetOutput => Err(ProgramError::ArgParseMissingFlagValue("--to-file/-o".into())),
-            FlagSet::SetInput => Err(ProgramError::ArgParseMissingFlagValue("--from-file/-i".into())),
+            FlagSet::SetOutput => Err(ProgramError::ArgParseMissingFlagValue(
+                "--to-file/-o".into(),
+            )),
+            FlagSet::SetInput => Err(ProgramError::ArgParseMissingFlagValue(
+                "--from-file/-i".into(),
+            )),
             FlagSet::SetText => Err(ProgramError::ArgParseMissingFlagValue("--text/-t".into())),
             FlagSet::SetSize => Err(ProgramError::ArgParseMissingFlagValue("--size/-s".into())),
         }
     }
 }
-
