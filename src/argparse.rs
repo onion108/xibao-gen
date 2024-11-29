@@ -65,6 +65,7 @@ impl Args {
 
         let mut flag_to_set = FlagSet::Nop;
         let mut empty = true;
+        let mut text_specified = false;
         for arg in args {
             empty = false;
             match (arg.as_str(), &flag_to_set) {
@@ -89,6 +90,7 @@ impl Args {
                 }
                 (s, FlagSet::Nop | FlagSet::SetText) => {
                     result.text = s.into();
+                    text_specified = true;
                     flag_to_set = FlagSet::Nop;
                 }
                 (s, FlagSet::SetSize) => {
@@ -101,6 +103,7 @@ impl Args {
                     let mut content = String::new();
                     file.read_to_string(&mut content);
                     result.text = content;
+                    text_specified = true;
                     flag_to_set = FlagSet::Nop;
                 }
                 (path, FlagSet::SetOutput) => {
@@ -117,6 +120,10 @@ impl Args {
         if empty {
             Self::show_help(&exe_name);
             exit(1);
+        }
+
+        if !text_specified {
+            return Err(ProgramError::ArgParseMissingContent);
         }
 
         match flag_to_set {

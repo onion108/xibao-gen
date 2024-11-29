@@ -21,6 +21,9 @@ pub enum ProgramError {
     #[error("please specify argument for flag {0}")]
     ArgParseMissingFlagValue(String),
 
+    #[error("please specify content text")]
+    ArgParseMissingContent,
+
     #[error("cannot initialize skia canvas")]
     SkiaNoCanvas,
 
