@@ -1,4 +1,4 @@
-use std::{env::args, process::exit};
+use std::{env::args, fs::OpenOptions, io::Read, process::exit};
 
 use crate::error::ProgramError;
 
@@ -7,6 +7,7 @@ pub struct Args {
     pub preview: bool,
     pub text: String,
     pub size: i32,
+    pub out: String
 }
 
 impl Default for Args {
@@ -14,7 +15,8 @@ impl Default for Args {
         Self {
             preview: false,
             text: "".into(),
-            size: 48
+            size: 48,
+            out: "output.png".into()
         }
     }
 }
@@ -23,14 +25,16 @@ impl Args {
     pub fn show_help(exe_name: &str) {
         const HELP_MESSAGE: &'static str = r#"
         Usage:
-        %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--help] <text>
+        %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--from-file|-i file] [--to-file|-o file] [--help] <text>
         
         Arguments:
-            --preview  Show a window to preview the image instead of writing to file.
-        -t, --text     The text to display in the generated image.
-        -s, --size     The font size, defaults to 48.
-            --help     Display this message.
-            <text>     Same as using -t or --text.
+            --preview   Show a window to preview the image instead of writing to file.
+        -t, --text      The text to display in the generated image.
+        -i, --from-file Read text from file and use it as input.
+        -o, --to-file   Specify output file name. Defaults to "output.png". If the argument doesn't end with .png the extension will be added.
+        -s, --size      The font size, defaults to 48.
+            --help      Display this message.
+            <text>      Same as using -t or --text.
 
         If duplicate arguments are read, then the latest one will be applied, others will be ignored.
         "#;
@@ -50,6 +54,8 @@ impl Args {
         enum FlagSet {
             SetText,
             SetSize,
+            SetInput,
+            SetOutput,
             Nop
         }
 
@@ -63,13 +69,19 @@ impl Args {
             empty = false;
             match (arg.as_str(), &flag_to_set) {
                 ("--preview" | "-p", FlagSet::Nop) => {
-                    result.preview = true
+                    result.preview = true;
                 },
                 ("--text" | "-t", FlagSet::Nop) => {
-                    flag_to_set = FlagSet::SetText
+                    flag_to_set = FlagSet::SetText;
+                }
+                ("--from-file" | "-i", FlagSet::Nop) => {
+                    flag_to_set = FlagSet::SetInput;
+                }
+                ("--to-file" | "-o", FlagSet::Nop) => {
+                    flag_to_set = FlagSet::SetOutput;
                 }
                 ("--size" | "-s", FlagSet::Nop) => {
-                    flag_to_set = FlagSet::SetSize
+                    flag_to_set = FlagSet::SetSize;
                 }
                 ("--help", FlagSet::Nop) => {
                     Self::show_help(&exe_name);
@@ -81,6 +93,22 @@ impl Args {
                 }
                 (s, FlagSet::SetSize) => {
                     result.size = s.parse::<i32>()?;
+                    flag_to_set = FlagSet::Nop;
+                }
+                (path, FlagSet::SetInput) => {
+                    // Read file from the path and set it as content.
+                    let mut file = OpenOptions::new().read(true).open(path)?;
+                    let mut content = String::new();
+                    file.read_to_string(&mut content);
+                    result.text = content;
+                    flag_to_set = FlagSet::Nop;
+                }
+                (path, FlagSet::SetOutput) => {
+                    result.out = if path.ends_with(".png") {
+                        path.into()
+                    } else {
+                        format!("{}.png", path)
+                    };
                     flag_to_set = FlagSet::Nop;
                 }
             }

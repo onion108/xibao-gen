@@ -1,3 +1,4 @@
 /target
 /output.png
-.env.zsh
+/.env.zsh
+/sample_input

@@ -27,7 +27,7 @@ pub fn program_entry() -> Result<(), ProgramError> {
     if args.preview {
         run_preview(imgdata, WIDTH, HEIGHT)?;
     } else {
-        let mut img_file = OpenOptions::new().write(true).create(true).open("output.png")?;
+        let mut img_file = OpenOptions::new().write(true).create(true).open(&args.out)?;
         img_file.write(imgdata.as_bytes())?;
     }
     Ok(())

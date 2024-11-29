@@ -1,4 +1,6 @@
-use skia_safe::{surfaces, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint, Point, Surface};
+use std::iter::zip;
+
+use skia_safe::{surfaces, Canvas, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint, Point, Shaper, Surface};
 
 use crate::{argparse::Args, error::ProgramError, resource::get_res_path};
 
@@ -18,7 +20,7 @@ pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, Progr
     paint.set_color(Color::BLACK);
 
     let mut debug_painter = Paint::default();
-    debug_painter.set_color(Color::TRANSPARENT);
+    debug_painter.set_color(Color::BLUE);
     debug_painter.set_style(skia_safe::PaintStyle::Stroke);
     debug_painter.set_stroke_width(4.0);
 
@@ -33,25 +35,59 @@ pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, Progr
     canvas.draw_image(&bg_img, (0, 0), Some(&paint));
 
     // Render text on the image
-    // TODO: Handle linefeeds.
     let font = &Font::from_typeface(default_typeface, args.size as f32);
-    let shaper = skia_safe::Shaper::new(FontMgr::new());
-    if let Some((blob, _)) =
-    shaper.shape_text_blob(&args.text, font, true, 10000.0, Point::default())
-    {
-        let bounds = blob.bounds();
-        println!("{:?}", bounds);
-        let text_width = bounds.right - bounds.left;
-        let text_height = bounds.bottom - bounds.top;
-        let text_x = (width as f32 - text_width) / 2.0 - bounds.left;
-        let text_y = (height as f32 - text_height) / 2.0 - bounds.top;
-        canvas.draw_text_blob(&blob, (text_x, text_y), &paint);
-        
-        let boundary = bounds.clone().with_offset((text_x, text_y));
-        canvas.draw_rect(boundary, &debug_painter);
-        canvas.draw_point((text_x, text_y), &debug_painter);
-    }
+    render_lines(&canvas, &paint, &font, &args.text.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>(), (width as f32, height as f32));
 
     Ok(surface.image_snapshot())
 }
+
+fn render_lines(canvas: &Canvas, paint: &Paint, font: &Font, lines: &[&str], window_wh: (f32, f32)) {
+    let shaper = Shaper::new(FontMgr::new());
+    let mut blobs_to_render = Vec::new();
+
+    // Shape all the text for rendering.
+    for line in lines {
+        if let Some((blob, _)) = shaper.shape_text_blob(line, font, true, 99999.0, Point::default()) {
+            blobs_to_render.push(blob);
+        } else {
+            println!("[WARNING] failed to shape text {:?}", line);
+        }
+    }
+
+    // Calculate positions to render.
+    let total_height = blobs_to_render.iter()
+        .fold(0.0, |acc, blob| {
+            let bounds = blob.bounds();
+            acc + (bounds.bottom - bounds.top)
+        });
+    let mut height_acc = 0.0f32;
+    // Calculate horizontal positions first. Every line will be centered.
+    let positions_to_render = blobs_to_render.iter()
+        .map(|blob| {
+            let bounds = blob.bounds();
+            let text_width = bounds.right - bounds.left;
+            let text_height = bounds.bottom - bounds.top;
+            let text_x = (window_wh.0 - text_width) / 2.0 - bounds.left;
+            let offset_y = -bounds.top;
+            (text_x, f32::NAN, text_height, offset_y)
+        })
+
+    // Then calculate vertical positions.
+        .map(|(x, y, text_height, offset_y)| {
+            let y_start = (window_wh.1 - total_height) / 2.0; 
+            (x, y, text_height, offset_y, y_start) 
+        })
+        .map(|(x, y, height, offset_y, y_start)| {
+            let actual_y = y_start + height_acc + offset_y;
+            height_acc += height;
+            (x, actual_y)
+        })
+        .collect::<Vec<_>>();
+
+    for (blob, pos)in zip(blobs_to_render, positions_to_render) {
+        canvas.draw_text_blob(blob, pos, paint);
+    }
+
+}
+
 
