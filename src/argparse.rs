@@ -119,7 +119,16 @@ impl Args {
             exit(1);
         }
 
-        Ok(result)
+        match flag_to_set {
+            FlagSet::Nop => Ok(result),
+
+            // If the flag_to_set isn't `FlagSet::Nop`, meaning some argument are not given for a
+            // flag.
+            FlagSet::SetOutput => Err(ProgramError::ArgParseMissingFlagValue("--to-file/-o".into())),
+            FlagSet::SetInput => Err(ProgramError::ArgParseMissingFlagValue("--from-file/-i".into())),
+            FlagSet::SetText => Err(ProgramError::ArgParseMissingFlagValue("--text/-t".into())),
+            FlagSet::SetSize => Err(ProgramError::ArgParseMissingFlagValue("--size/-s".into())),
+        }
     }
 }
 
