@@ -1,15 +1,9 @@
-#![allow(unused)]
 use std::{fs::OpenOptions, io::Write};
 
 use argparse::Args;
 use error::ProgramError;
 use previewer::run_preview;
-use render::{create_surface, render_image};
-use resource::get_res_path;
-use skia_safe::{
-    surfaces, Canvas, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint,
-    PaintStyle, Path, Point, Size, Surface, Typeface,
-};
+use render::render_image;
 
 pub mod argparse;
 pub mod error;

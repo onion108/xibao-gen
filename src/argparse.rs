@@ -101,7 +101,7 @@ impl Args {
                     // Read file from the path and set it as content.
                     let mut file = OpenOptions::new().read(true).open(path)?;
                     let mut content = String::new();
-                    file.read_to_string(&mut content);
+                    file.read_to_string(&mut content)?;
                     result.text = content;
                     text_specified = true;
                     flag_to_set = FlagSet::Nop;

@@ -103,7 +103,7 @@ fn render_lines(
             let y_start = (window_wh.1 - total_height) / 2.0;
             (x, y, text_height, offset_y, y_start)
         })
-        .map(|(x, y, height, offset_y, y_start)| {
+        .map(|(x, _, height, offset_y, y_start)| {
             let actual_y = y_start + height_acc + offset_y;
             height_acc += height;
             (x, actual_y)
