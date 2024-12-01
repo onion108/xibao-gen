@@ -11,20 +11,16 @@ pub mod previewer;
 pub mod render;
 pub mod resource;
 
-// From the width and height of the image.
-const WIDTH: i32 = 980;
-const HEIGHT: i32 = 735;
-
 pub fn program_entry() -> Result<(), ProgramError> {
     let args = Args::parse()?;
 
-    let img = render_image(WIDTH, HEIGHT, &args)?;
+    let img = render_image(&args)?;
     let imgdata = img
         .encode(None, skia_safe::EncodedImageFormat::PNG, None)
         .ok_or(ProgramError::SkiaNoImage)?;
 
     if args.preview {
-        run_preview(imgdata, WIDTH, HEIGHT)?;
+        run_preview(imgdata, img.width(), img.height())?;
     } else {
         let mut img_file = OpenOptions::new()
             .write(true)

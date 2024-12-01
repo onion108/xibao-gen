@@ -8,6 +8,7 @@ pub struct Args {
     pub text: String,
     pub size: i32,
     pub out: String,
+    pub custom_bg: Option<String>,
 }
 
 impl Default for Args {
@@ -17,6 +18,7 @@ impl Default for Args {
             text: "".into(),
             size: 48,
             out: "output.png".into(),
+            custom_bg: None,
         }
     }
 }
@@ -28,13 +30,14 @@ impl Args {
         %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--from-file|-i file] [--to-file|-o file] [--help] <text>
         
         Arguments:
-            --preview   Show a window to preview the image instead of writing to file.
-        -t, --text      The text to display in the generated image.
-        -i, --from-file Read text from file and use it as input.
-        -o, --to-file   Specify output file name. Defaults to "output.png". If the argument doesn't end with .png the extension will be added.
-        -s, --size      The font size, defaults to 48.
-            --help      Display this message.
-            <text>      Same as using -t or --text.
+            --preview    Show a window to preview the image instead of writing to file.
+        -t, --text       The text to display in the generated image.
+        -i, --from-file  Read text from file and use it as input.
+        -o, --to-file    Specify output file name. Defaults to "output.png". If the argument doesn't end with .png the extension will be added.
+        -s, --size       The font size, defaults to 48.
+        -b, --background Path to the custom background image.
+            --help       Display this message.
+            <text>       Same as using -t or --text.
 
         If duplicate arguments are read, then the latest one will be applied, others will be ignored.
         "#;
@@ -56,6 +59,7 @@ impl Args {
             SetSize,
             SetInput,
             SetOutput,
+            SetBackground,
             Nop,
         }
 
@@ -83,6 +87,9 @@ impl Args {
                 }
                 ("--size" | "-s", FlagSet::Nop) => {
                     flag_to_set = FlagSet::SetSize;
+                }
+                ("--background" | "-b", FlagSet::Nop) => {
+                    flag_to_set = FlagSet::SetBackground;
                 }
                 ("--help", FlagSet::Nop) => {
                     Self::show_help(&exe_name);
@@ -114,6 +121,10 @@ impl Args {
                     };
                     flag_to_set = FlagSet::Nop;
                 }
+                (path, FlagSet::SetBackground) => {
+                    result.custom_bg = Some(path.into());
+                    flag_to_set = FlagSet::Nop;
+                }
             }
         }
 
@@ -139,6 +150,9 @@ impl Args {
             )),
             FlagSet::SetText => Err(ProgramError::ArgParseMissingFlagValue("--text/-t".into())),
             FlagSet::SetSize => Err(ProgramError::ArgParseMissingFlagValue("--size/-s".into())),
+            FlagSet::SetBackground => Err(ProgramError::ArgParseMissingFlagValue(
+                "--background/-b".into(),
+            )),
         }
     }
 }

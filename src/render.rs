@@ -21,7 +21,15 @@ pub fn create_surface(width: i32, height: i32) -> Result<Surface, ProgramError> 
     .ok_or(ProgramError::SkiaNoSurface)
 }
 
-pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, ProgramError> {
+pub fn render_image(args: &Args) -> Result<Image, ProgramError> {
+    let bg_img = Image::from_encoded(
+        Data::from_filename(args.custom_bg.clone().unwrap_or(get_res_path("xb_bg.png")?)).unwrap(),
+    )
+    .ok_or(ProgramError::SkiaNoImage)?;
+
+    let width = bg_img.width();
+    let height = bg_img.height();
+
     let mut surface = create_surface(width, height)?;
     let canvas = surface.canvas();
     let mut paint = Paint::default();
@@ -37,9 +45,6 @@ pub fn render_image(width: i32, height: i32, args: &Args) -> Result<Image, Progr
     let default_typeface = font_mgr
         .legacy_make_typeface(None, FontStyle::default())
         .unwrap();
-
-    let bg_img = Image::from_encoded(Data::from_filename(get_res_path("xb_bg.png")?).unwrap())
-        .ok_or(ProgramError::SkiaNoImage)?;
 
     canvas.clear(Color4f::new(1.0, 1.0, 1.0, 1.0));
     canvas.draw_image(&bg_img, (0, 0), Some(&paint));
