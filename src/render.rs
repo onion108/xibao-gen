@@ -87,9 +87,10 @@ fn render_lines(
         acc + (bounds.bottom - bounds.top)
     });
     let mut height_acc = 0.0f32;
-    // Calculate horizontal positions first. Every line will be centered.
+
     let positions_to_render = blobs_to_render
         .iter()
+        // Calculate horizontal positions first. Every line will be centered.
         .map(|blob| {
             let bounds = blob.bounds();
             let text_width = bounds.right - bounds.left;
