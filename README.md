@@ -60,5 +60,3 @@ For further help, use
 xibao-gen --help
 ```
 
-
-
