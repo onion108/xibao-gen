@@ -2,6 +2,9 @@
 name = "xibao-gen"
 version = "0.1.0"
 edition = "2021"
+description = "Generate Xǐbào(喜报, CONGRATULATIONS) image."
+repository = "https://github.com/onion108/xibao-gen"
+license = "MIT"
 
 [dependencies]
 sdl2 = { version = "0.37.0", features = ["image"] }
