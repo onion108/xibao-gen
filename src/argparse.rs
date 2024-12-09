@@ -8,6 +8,7 @@ pub struct Args {
     pub text: String,
     pub size: i32,
     pub out: String,
+    pub font: Option<String>,
     pub custom_bg: Option<String>,
 }
 
@@ -18,6 +19,7 @@ impl Default for Args {
             text: "".into(),
             size: 48,
             out: "output.png".into(),
+            font: None,
             custom_bg: None,
         }
     }
@@ -27,7 +29,7 @@ impl Args {
     pub fn show_help(exe_name: &str) {
         const HELP_MESSAGE: &'static str = r#"
         Usage:
-        %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--from-file|-i file] [--to-file|-o file] [--help] <text>
+        %$<PROG_NAME>$% [--preview] [--text|-t text] [--size|-s font_size] [--from-file|-i file] [--to-file|-o file] [--font|-f font] [--help] <text>
         
         Arguments:
             --preview    Show a window to preview the image instead of writing to file.
@@ -36,6 +38,7 @@ impl Args {
         -o, --to-file    Specify output file name. Defaults to "output.png". If the argument doesn't end with .png the extension will be added.
         -s, --size       The font size, defaults to 48.
         -b, --background Path to the custom background image.
+        -f, --font       Specify the font family name used by the image.
             --help       Display this message.
             <text>       Same as using -t or --text.
 
@@ -60,6 +63,7 @@ impl Args {
             SetInput,
             SetOutput,
             SetBackground,
+            SetFont,
             Nop,
         }
 
@@ -91,6 +95,9 @@ impl Args {
                 ("--background" | "-b", FlagSet::Nop) => {
                     flag_to_set = FlagSet::SetBackground;
                 }
+                ("--font" | "-f", FlagSet::Nop) => {
+                    flag_to_set = FlagSet::SetFont;
+                }
                 ("--help", FlagSet::Nop) => {
                     Self::show_help(&exe_name);
                     exit(0);
@@ -119,6 +126,10 @@ impl Args {
                     } else {
                         format!("{}.png", path)
                     };
+                    flag_to_set = FlagSet::Nop;
+                }
+                (font, FlagSet::SetFont) => {
+                    result.font = Some(font.into());
                     flag_to_set = FlagSet::Nop;
                 }
                 (path, FlagSet::SetBackground) => {
@@ -151,6 +162,9 @@ impl Args {
             FlagSet::SetText => Err(ProgramError::ArgParseMissingFlagValue("--text/-t".into())),
             FlagSet::SetSize => Err(ProgramError::ArgParseMissingFlagValue("--size/-s".into())),
             FlagSet::SetBackground => Err(ProgramError::ArgParseMissingFlagValue(
+                "--background/-b".into(),
+            )),
+            FlagSet::SetFont => Err(ProgramError::ArgParseMissingFlagValue(
                 "--background/-b".into(),
             )),
         }

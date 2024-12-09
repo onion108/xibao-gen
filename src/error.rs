@@ -40,4 +40,7 @@ pub enum ProgramError {
 
     #[error(transparent)]
     SDLWindowBuildError(#[from] WindowBuildError),
+
+    #[error("cannot find font family {0}")]
+    NoFontFamilyName(String),
 }

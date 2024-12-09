@@ -42,19 +42,30 @@ pub fn render_image(args: &Args) -> Result<Image, ProgramError> {
     debug_painter.set_stroke_width(4.0);
 
     let font_mgr = FontMgr::new();
-    let default_typeface = font_mgr
-        .legacy_make_typeface(None, FontStyle::default())
-        .unwrap();
-
+    let typeface;
+    if let Some(ref name) = args.font {
+        if let None = font_mgr.family_names().find(|x| x == name) {
+            return Err(ProgramError::NoFontFamilyName(name.clone()));
+        }
+        typeface = font_mgr
+            .match_family(name)
+            .match_style(FontStyle::default())
+            .unwrap();
+    } else {
+        typeface = font_mgr
+            .legacy_make_typeface(None, FontStyle::default())
+            .unwrap();
+    }
     canvas.clear(Color4f::new(1.0, 1.0, 1.0, 1.0));
     canvas.draw_image(&bg_img, (0, 0), Some(&paint));
 
     // Render text on the image
-    let font = &Font::from_typeface(default_typeface, args.size as f32);
+    let font = &Font::from_typeface(typeface.clone(), args.size as f32);
     render_lines(
         &canvas,
         &paint,
         &font,
+        font_mgr,
         &args
             .text
             .lines()
@@ -70,10 +81,11 @@ fn render_lines(
     canvas: &Canvas,
     paint: &Paint,
     font: &Font,
+    font_mgr: FontMgr,
     lines: &[&str],
     window_wh: (f32, f32),
 ) {
-    let shaper = Shaper::new(FontMgr::new());
+    let shaper = Shaper::new(font_mgr);
     let mut blobs_to_render = Vec::new();
 
     // Shape all the text for rendering.
