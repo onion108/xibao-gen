@@ -1,8 +1,7 @@
 use std::iter::zip;
 
 use skia_safe::{
-    surfaces, Canvas, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint,
-    Point, Shaper, Surface,
+    surfaces, Canvas, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint, Point, Rect, Shaper, Surface
 };
 
 use crate::{argparse::Args, error::ProgramError, resource::get_res_path};
@@ -112,7 +111,7 @@ fn render_lines(
             let bounds = blob.bounds();
             let text_width = bounds.right - bounds.left;
             let text_height = bounds.bottom - bounds.top;
-            let text_x = (window_wh.0 - text_width) / 2.0 - bounds.left;
+            let text_x = (window_wh.0 - text_width) / 2.0 - bounds.left / 2.;
             let offset_y = -bounds.top;
             (text_x, f32::NAN, text_height, offset_y)
         })
