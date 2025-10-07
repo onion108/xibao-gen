@@ -8,7 +8,7 @@ license = "MIT"
 
 [dependencies]
 sdl3 = { version = "0.15.1", features = ["image", "use-pkg-config"] }
-skia-safe = { version = "0.80.1", features = ["textlayout"] }
+skia-safe = { version = "0.89.0", features = ["textlayout"] }
 thiserror = "2.0.3"
 
 [build-dependencies]

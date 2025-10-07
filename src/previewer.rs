@@ -9,7 +9,6 @@ use crate::error::ProgramError;
 
 pub fn run_preview(png_image: Data, width: i32, height: i32) -> Result<(), ProgramError> {
     let sdl_ctx = sdl3::init()?;
-    //let _ = sdl3::image::init(InitFlag::PNG).map_err(|x| ProgramError::SDLError(x.to_string()))?;
     let video_subsystem = sdl_ctx.video()?;
     let window = video_subsystem
         .window("Preview", width as u32, height as u32)
