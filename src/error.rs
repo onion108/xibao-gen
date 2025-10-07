@@ -1,6 +1,6 @@
 use std::num::ParseIntError;
 
-use sdl2::{video::WindowBuildError, IntegerOrSdlError};
+use sdl3::{video::WindowBuildError, IntegerOrSdlError};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -33,7 +33,7 @@ pub enum ProgramError {
     SkiaNoImage,
 
     #[error("SDL2 pooped itself: {0}")]
-    SDLError(String),
+    SDLError(#[from] sdl3::Error),
 
     #[error(transparent)]
     SDLIntegerOrError(#[from] IntegerOrSdlError),
