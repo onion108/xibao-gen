@@ -1,7 +1,8 @@
-use std::iter::zip;
 
 use skia_safe::{
-    surfaces, textlayout::{FontCollection, Paragraph, ParagraphBuilder, ParagraphStyle, TextStyle}, utils::text_utils::Align, wrapper::PointerWrapper, Canvas, Color, Color4f, Data, Font, FontMgr, FontStyle, Image, ImageInfo, Paint, Point, Rect, Shaper, Surface
+    surfaces,
+    textlayout::{FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
+    wrapper::PointerWrapper, Color, Color4f, Data, FontMgr, FontStyle, Image, ImageInfo, Paint, Surface,
 };
 
 use crate::{argparse::Args, error::ProgramError, resource::get_res_path};

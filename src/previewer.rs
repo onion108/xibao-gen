@@ -1,6 +1,6 @@
 use sdl3::{
     event::{Event, WindowEvent},
-    image::{LoadTexture},
+    image::LoadTexture,
     keyboard::Keycode,
 };
 use skia_safe::Data;
@@ -17,18 +17,13 @@ pub fn run_preview(png_image: Data, width: i32, height: i32) -> Result<(), Progr
 
     let mut canvas = window.into_canvas();
     let texture_creator = canvas.texture_creator();
-    let texture = texture_creator
-        .load_texture_bytes(&png_image)?;
+    let texture = texture_creator.load_texture_bytes(&png_image)?;
 
-    canvas
-        .copy(&texture, None, None)?;
+    canvas.copy(&texture, None, None)?;
     canvas.present();
 
     'mainloop: loop {
-        for event in sdl_ctx
-            .event_pump()?
-            .poll_iter()
-        {
+        for event in sdl_ctx.event_pump()?.poll_iter() {
             match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
@@ -37,21 +32,17 @@ pub fn run_preview(png_image: Data, width: i32, height: i32) -> Result<(), Progr
                 } => {
                     break 'mainloop;
                 }
-                Event::Window { win_event, .. } => {
-                    match win_event {
-                        WindowEvent::Moved(_, _) => {
-                            canvas
-                                .copy(&texture, None, None)?;
-                            canvas.present();
-                        }
-                        WindowEvent::Resized(_, _) => {
-                            canvas
-                                .copy(&texture, None, None)?;
-                            canvas.present();
-                        }
-                        _ => {}
+                Event::Window { win_event, .. } => match win_event {
+                    WindowEvent::Moved(_, _) => {
+                        canvas.copy(&texture, None, None)?;
+                        canvas.present();
                     }
-                }
+                    WindowEvent::Resized(_, _) => {
+                        canvas.copy(&texture, None, None)?;
+                        canvas.present();
+                    }
+                    _ => {}
+                },
                 _ => {}
             }
         }
