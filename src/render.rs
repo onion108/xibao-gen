@@ -2,7 +2,7 @@
 use skia_safe::{
     surfaces,
     textlayout::{FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
-    wrapper::PointerWrapper, Color, Color4f, Data, FontMgr, FontStyle, Image, ImageInfo, Paint, Surface,
+    Color, Color4f, Data, FontMgr, FontStyle, Image, ImageInfo, Paint, Surface,
 };
 
 use crate::{argparse::Args, error::ProgramError, resource::get_res_path};
