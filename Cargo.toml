@@ -1,6 +1,6 @@
 [package]
 name = "xibao-gen"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Generate Xǐbào(喜报, CONGRATULATIONS) image."
 repository = "https://github.com/onion108/xibao-gen"

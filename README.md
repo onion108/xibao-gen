@@ -9,15 +9,15 @@ Sample result:
 
 ## Build dependencies
 - A C/C++ toolchain.
-- SDL2 available in `pkg-config`, run `pkg-config --cflags sdl2` to confirm.
-- SDL2_image available in `pkg-config`, run `pkg-config --cflags SDL2_image` to confirm.
+- SDL3 available in `pkg-config`, run `pkg-config --cflags sdl3` to confirm.
+- SDL3_image available in `pkg-config`, run `pkg-config --cflags sdl3-image` to confirm.
 
 ## Non-Rust dependencies
 This project depends on the following non-rust libraries.
 - LibC (of course)
 - C++ standard library (for Skia)
-- SDL2
-- SDL2_image
+- SDL3
+- SDL3_image
 - Skia
 - Any library that the libraries above depend on
 
