@@ -1,4 +1,3 @@
-
 use skia_safe::{
     surfaces,
     textlayout::{FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
