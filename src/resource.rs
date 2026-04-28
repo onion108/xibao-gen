@@ -1,4 +1,7 @@
-use std::{env::current_exe, fs::exists};
+use std::{
+    env::current_exe,
+    fs::{canonicalize, exists},
+};
 
 use crate::error::ProgramError;
 
@@ -32,7 +35,7 @@ pub fn get_res_path(path: &str) -> Result<String, ProgramError> {
         return Ok(possible_path1);
     }
 
-    if let Ok(mut path_buf) = current_exe() {
+    if let Ok(mut path_buf) = current_exe().and_then(canonicalize) {
         let exe_name = path_buf
             .file_name()
             .unwrap()
