@@ -60,3 +60,9 @@ For further help, use
 xibao-gen --help
 ```
 
+## Preview window keybinds
+Here are a list of possible keybinds you can use from the preview window.
+
+- `<Esc>`: Close the window.
+- `c` (since 0.3.0): Copy the image.
+
