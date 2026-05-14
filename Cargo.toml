@@ -1,12 +1,13 @@
 [package]
 name = "xibao-gen"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Generate Xǐbào(喜报, CONGRATULATIONS) image."
 repository = "https://github.com/onion108/xibao-gen"
 license = "MIT"
 
 [dependencies]
+clipboard-rs = { version = "0.3.4", features = ["wayland"] }
 sdl3 = { version = "0.15.1", features = ["image", "use-pkg-config"] }
 skia-safe = { version = "0.89.0", features = ["textlayout"] }
 thiserror = "2.0.3"

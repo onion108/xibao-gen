@@ -1,13 +1,20 @@
+//! This module contains a hand-written command-line argument parser. Just too lazy to use `clip`.
 use std::{env::args, fs::OpenOptions, io::Read, process::exit};
 
 use crate::error::ProgramError;
 
+/// Command-line arguments. The fields are quite self-explanatory.
 #[derive(Debug, Clone)]
 pub struct Args {
     pub preview: bool,
     pub text: String,
+
+    // The font size.
     pub size: i32,
+
+    // Path to the output file.
     pub out: String,
+
     pub font: Option<String>,
     pub custom_bg: Option<String>,
 }
@@ -74,6 +81,8 @@ impl Args {
         let mut flag_to_set = FlagSet::Nop;
         let mut empty = true;
         let mut text_specified = false;
+
+        // A huge state machine to parse arguments.
         for arg in args {
             empty = false;
             match (arg.as_str(), &flag_to_set) {
@@ -112,7 +121,7 @@ impl Args {
                     flag_to_set = FlagSet::Nop;
                 }
                 (path, FlagSet::SetInput) => {
-                    // Read file from the path and set it as content.
+                    // Read file from the path and set it as the content.
                     let mut file = OpenOptions::new().read(true).open(path)?;
                     let mut content = String::new();
                     file.read_to_string(&mut content)?;
@@ -148,6 +157,7 @@ impl Args {
             return Err(ProgramError::ArgParseMissingContent);
         }
 
+        // Process missing flags.
         match flag_to_set {
             FlagSet::Nop => Ok(result),
 

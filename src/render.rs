@@ -20,6 +20,7 @@ pub fn create_surface(width: i32, height: i32) -> Result<Surface, ProgramError> 
     .ok_or(ProgramError::SkiaNoSurface)
 }
 
+/// Render Xǐbào image from given configuration passed by command-line arguments.
 pub fn render_image(args: &Args) -> Result<Image, ProgramError> {
     let bg_img = Image::from_encoded(
         Data::from_filename(args.custom_bg.clone().unwrap_or(get_res_path("xb_bg.png")?)).unwrap(),
@@ -35,13 +36,17 @@ pub fn render_image(args: &Args) -> Result<Image, ProgramError> {
     paint.set_anti_alias(true);
     paint.set_color(Color::BLACK);
 
+    // {{{ Temporary things for visual debugging
     let mut debug_painter = Paint::default();
     debug_painter.set_color(Color::BLUE);
     debug_painter.set_style(skia_safe::PaintStyle::Stroke);
     debug_painter.set_stroke_width(4.0);
+    // }}}
 
     let font_mgr = FontMgr::new();
     let typeface;
+
+    // Try to get the default or specified font
     if let Some(ref name) = args.font {
         if let None = font_mgr.family_names().find(|x| x == name) {
             return Err(ProgramError::NoFontFamilyName(name.clone()));
@@ -55,9 +60,12 @@ pub fn render_image(args: &Args) -> Result<Image, ProgramError> {
             .legacy_make_typeface(None, FontStyle::default())
             .unwrap();
     }
+
+    // Draw background image
     canvas.clear(Color4f::new(1.0, 1.0, 1.0, 1.0));
     canvas.draw_image(&bg_img, (0, 0), Some(&paint));
 
+    // Trying to draw center text CORRECTLY through bunch of API.
     let mut text_style = TextStyle::new();
     text_style.set_font_families(&[&typeface.family_name()]);
     text_style.set_font_size(args.size as f32);

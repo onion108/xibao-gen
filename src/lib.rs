@@ -11,6 +11,7 @@ pub mod previewer;
 pub mod render;
 pub mod resource;
 
+/// The entry of the program.
 pub fn program_entry() -> Result<(), ProgramError> {
     let args = Args::parse()?;
 

@@ -3,6 +3,7 @@ use std::num::ParseIntError;
 use sdl3::{video::WindowBuildError, IntegerOrSdlError};
 use thiserror::Error;
 
+/// A wrapper for all kinds of errors that may happen in the program.
 #[derive(Error, Debug)]
 pub enum ProgramError {
     #[error(transparent)]
@@ -43,4 +44,14 @@ pub enum ProgramError {
 
     #[error("cannot find font family {0}")]
     NoFontFamilyName(String),
+
+    /// The motherfucker clipboard-rs doesn't specify exact Error type what the fuck are you guys
+    /// doing now I have to embed this silly stupid type into my Error type I hate you guys really
+    /// really much I can't even express my hatred through words properly oh my god I hate this
+    /// thing so much.
+    ///
+    /// I'll never want to see the stupid `Box<dyn std::error::Error + Send + Sync + 'static>` any more.
+    /// **FUCK IT**.
+    #[error(transparent)]
+    ClipboardIrresponsibleError(#[from] Box<dyn std::error::Error + Send + Sync + 'static>),
 }
