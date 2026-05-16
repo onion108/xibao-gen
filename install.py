@@ -34,6 +34,7 @@ def installation():
         raise Exception("failed to build the project. ")
 
     shutil.copyfile(f"target/release/{APP_NAME}", join(bin_prefix, APP_NAME))
+    shutil.copymode(f"target/release/{APP_NAME}", join(bin_prefix, APP_NAME))
     shutil.copytree("resource", join(share_prefix, APP_NAME))
 
 if __name__ == "__main__":
